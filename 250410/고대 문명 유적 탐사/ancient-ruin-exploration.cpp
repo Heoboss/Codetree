@@ -16,10 +16,10 @@ int dx[] = { 0,1,0,-1 };
 int dy[] = { 1,0,-1,0 }; // 동 남 서 북 순서
 const int MXN = 5;
 int K, M;
-int AncientMap[MXN+2][MXN+2];
+int AncientMap[MXN + 2][MXN + 2];
 int board[MXN + 2][MXN + 2];
 queue<int> WallNumber;
-queue<pair<int,int>> q; // bfs 진행할 큐
+queue<pair<int, int>> q; // bfs 진행할 큐
 
 vector<tuple<int, int, int, int>> Rot; // 열, 행, 1차 획득 가치, 회전한 각도
 
@@ -91,7 +91,7 @@ int bfs_remove() {
 				for (int ii = 0; ii < MXN; ii++) {
 					for (int jj = 0; jj < MXN; jj++) {
 						// 지워야할 유물들 좌표 큐에 push
-						if (vis[ii][jj] == ccnt ) {
+						if (vis[ii][jj] == ccnt) {
 							board[ii][jj] = 0; // 지워버림
 						}
 					}
@@ -107,7 +107,7 @@ void rot(int x, int y) {
 	int tmp[MXN + 2][MXN + 2];
 	for (int ii = 0; ii < 3; ii++) {
 		for (int jj = 0; jj < 3; jj++) {
-			tmp[x - 1 + jj][y - 1 + 2 -ii] = board[x - 1 + ii][y - 1 + jj];
+			tmp[x - 1 + jj][y - 1 + 2 - ii] = board[x - 1 + ii][y - 1 + jj];
 		}
 	}
 	for (int ii = x - 1; ii <= x + 1; ii++) {
@@ -170,25 +170,28 @@ int main() {
 					// (i,j)를 중심으로 t번만큼 돌린다음 유물가치 탐색했음
 					// t : 회전 횟수를 나타냄 t = 3 -> 270도 회전
 					rot(i, j); // 현재 좌표에 대해서 한번 돌림
+					//print_board();
 					int gachi = bfs();
 					if ((int)Rot.size() < 1 && gachi != 0) { // 아직 들어간게 없으면
 						Rot.push_back(make_tuple(j, i, gachi, t));
 					}
-					else if((int)Rot.size() >= 1 && gachi != 0){ // 들어간게 하나라도 있다면
+					else if ((int)Rot.size() >= 1 && gachi != 0) { // 들어간게 하나라도 있다면
 						int worth = get<2>(Rot[0]);
 						int cnt = get<3>(Rot[0]);
 						if (gachi > worth) { //현재 경우가 가치가 더 크다면 바로 수정
-							Rot[0] = make_tuple(j, i, gachi, t);
+							Rot.clear();
+							Rot.push_back(make_tuple(j, i, gachi, t));
 						}
 						else if (gachi == worth) {
 							if (t < cnt) { // 현재 경우가 회전 횟수가 더 적으면
-								Rot[0] = make_tuple(j, i, gachi, t);
+								Rot.clear();
+								Rot.push_back(make_tuple(j, i, gachi, t));
 							}
 							else if (t == cnt) { // 같다면
 								Rot.push_back(make_tuple(j, i, gachi, t));
 							}
 						}
-					} 
+					}
 				}
 			}
 		} // 유물 가치와 회전 횟수에 따라 Rot에 후보군들 저장
@@ -209,22 +212,25 @@ int main() {
 			for (int tj = 0; tj < MXN; tj++) {
 				for (int ti = MXN - 1; ti >= 0; ti--) {
 					if (board[ti][tj] == 0) {
-						if(WallNumber.empty()) continue;
+						if (WallNumber.empty()) break;
 						board[ti][tj] = WallNumber.front();
 						WallNumber.pop();
 					}
 				}
+				if (WallNumber.empty()) break;
 			}
 			// board에 0이 있다면 유적 벽면 숫자로 다 채웠음
 			int condi = bfs_remove();
 			ans += condi;
 			if (condi == 0) break;
 		}
+		//cout << "#" << K << ": ------------\n";
+		//print_board();
 		cout << ans << ' ';
 		copy_to_map();
 		Rot.clear();
 
 	}
-	
+
 	return 0;
 }
