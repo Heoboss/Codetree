@@ -148,26 +148,37 @@ int main() {
 	while (!GolRem.empty()) {
 		auto cur = GolRem.front(); GolRem.pop();
 		int x = 0; int y = cur.X; int d = cur.Y;
+		bool flag = false;
 		while (1) {
-			if (move_to_nam(x, y)) {
-				x++;
+			while (1) {
+				if (move_to_nam(x, y)) {
+					x++;
+					flag = false;
+				}
+				else {
+					flag = true;
+					break;
+				}
 			}
-			else break;
-		} // 남쪽으로 이동할 수 있을 만큼 (x,y)를 이동
-		while (1) {
-			if (move_to_seo(x, y)) {
-				x++; y--;
-				d = (d + 3) % 4;
+			while (1) {
+				if (move_to_seo(x, y)) {
+					x++; y--;
+					d = (d + 3) % 4;
+					flag = false;
+				}
+				else break;
 			}
-			else break;
+			while (1) {
+				if (move_to_dong(x, y)) {
+					x++; y++;
+					d = (d + 1) % 4;
+					flag = false;
+				}
+				else break;
+			}
+			if (flag) break;
 		}
-		while (1) {
-			if (move_to_dong(x, y)) {
-				x++; y++;
-				d = (d + 1)%4;
-			}
-			else break;
-		}
+		
 		// 골렘이 Map 안에 없다면 마법의 숲 clear
 		if (x - 1 < 2) {
 			for (int i = 0; i < 75; i++) {
